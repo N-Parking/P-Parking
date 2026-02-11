@@ -1,391 +1,152 @@
 <!doctype html>
 <html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>N-Parking</title>
-    <style>
-      :root {
-        --bg1: #1a0b0b;
-        --bg2: #04070d;
-        --cardW: min(92vw, 640px);
-        --cardH: calc(var(--cardW) * 0.56);
-        --radius: 18px;
-        --shadow: 0 25px 70px rgba(0, 0, 0, 0.55);
-        --shadow2: 0 10px 24px rgba(0, 0, 0, 0.35);
-        --glow: 0 0 0 1px rgba(255, 255, 255, 0.08),
-          0 20px 80px rgba(120, 140, 255, 0.12);
-        --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>N-Parking</title>
 
-        /* Hotspots (AJUSTA ESTO) - valores en % sobre la imagen */
-        --tel-x: 58%;
-        --tel-y: 33%;
-        --tel-w: 32%;
-        --tel-h: 10%;
+  <style>
+    :root {
+      --bg1:#1a0b0b;
+      --bg2:#04070d;
+      --cardW:min(92vw,640px);
+      --cardH:calc(var(--cardW)*0.56);
+      --radius:18px;
 
-        --mail-x: 57%;
-        --mail-y: 87%;
-        --mail-w: 42%;
-        --mail-h: 10%;
-      }
+      /* ZONAS CLICABLES (AJUSTA SOLO ESTO) */
+      --tel-x:58%;
+      --tel-y:33%;
+      --tel-w:32%;
+      --tel-h:10%;
 
-      * {
-        box-sizing: border-box;
-      }
+      --mail-x:57%;
+      --mail-y:87%;
+      --mail-w:42%;
+      --mail-h:10%;
+    }
 
-      body {
-        user-select: none;
-        margin: 0;
-        min-height: 100svh;
-        display: grid;
-        place-items: center;
-        color: #eaf0ff;
-        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
-          Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-        background: radial-gradient(
-            1200px 700px at 20% 10%,
-            rgba(120, 140, 255, 0.18),
-            transparent 55%
-          ),
-          radial-gradient(
-            900px 600px at 90% 90%,
-            rgba(255, 120, 210, 0.12),
-            transparent 50%
-          ),
-          linear-gradient(180deg, var(--bg1), var(--bg2));
-        overflow: hidden;
-      }
+    *{box-sizing:border-box}
 
-      .wrap {
-        width: min(1000px, 96vw);
-        display: grid;
-        gap: 18px;
-        justify-items: center;
-        padding: 36px 0;
-      }
+    body{
+      margin:0;
+      min-height:100svh;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(180deg,var(--bg1),var(--bg2));
+      overflow:hidden;
+      user-select:none;
+    }
 
-      .scene {
-        width: var(--cardW);
-        height: var(--cardH);
-        perspective: 1200px;
-        perspective-origin: 50% 50%;
-        position: relative;
-        touch-action: none;
-      }
+    .scene{
+      width:var(--cardW);
+      height:var(--cardH);
+      perspective:1200px;
+      touch-action:none;
+    }
 
-      .card {
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        inset: 0;
-        transform-style: preserve-3d;
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-        transition: transform 700ms var(--ease), box-shadow 700ms var(--ease);
-        will-change: transform;
-        outline: none;
-        cursor: pointer;
-      }
+    .card{
+      width:100%;
+      height:100%;
+      transform-style:preserve-3d;
+      transition:transform .7s ease;
+      cursor:pointer;
+    }
 
-      .card:focus-visible {
-        box-shadow: var(--shadow), 0 0 0 3px rgba(120, 140, 255, 0.35);
-      }
+    .face{
+      position:absolute;
+      inset:0;
+      backface-visibility:hidden;
+      border-radius:var(--radius);
+      overflow:hidden;
+    }
 
-      .face {
-        position: absolute;
-        inset: 0;
-        border-radius: var(--radius);
-        overflow: hidden;
-        backface-visibility: hidden;
-        transform-style: preserve-3d;
-        box-shadow: var(--glow);
-        background: #0b1020;
-      }
+    .back{transform:rotateY(180deg)}
+    .is-flipped{transform:rotateY(180deg)}
 
-      .face::before {
-        content: "";
-        position: absolute;
-        inset: -20%;
-        background: radial-gradient(
-          450px 300px at var(--gx, 50%) var(--gy, 50%),
-          rgba(255, 255, 255, 0.22),
-          rgba(255, 255, 255, 0) 55%
-        );
-        opacity: var(--gop, 0);
-        transition: opacity 200ms var(--ease);
-        pointer-events: none;
-        transform: translateZ(60px);
-        mix-blend-mode: screen;
-      }
+    img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
 
-      .img {
-        width: 100%;
-        height: 100%;
-        display: block;
-        object-fit: cover;
-        transform: translateZ(35px) scale(1.02);
-      }
+    /* HOTSPOTS */
+    .hotspot{
+      position:absolute;
+      transform:translateZ(80px);
+      background:transparent;
+    }
 
-      .back {
-        transform: rotateY(180deg);
-      }
+    .hotspot.tel{
+      left:var(--tel-x);
+      top:var(--tel-y);
+      width:var(--tel-w);
+      height:var(--tel-h);
+    }
 
-      .is-flipped {
-        transform: rotateY(180deg) translateZ(0);
-      }
+    .hotspot.mail{
+      left:var(--mail-x);
+      top:var(--mail-y);
+      width:var(--mail-w);
+      height:var(--mail-h);
+    }
+  </style>
+</head>
 
-      /* Hotspots clicables */
-      .hotspot {
-        position: absolute;
-        border-radius: 10px;
-        transform: translateZ(80px);
-        /* por defecto invisible */
-        background: rgba(255, 255, 255, 0);
-        outline: none;
-        -webkit-tap-highlight-color: transparent;
-      }
+<body>
+  <div class="scene" id="scene">
+    <div class="card" id="card">
 
-      /* si quieres verlos mientras ajustas: agrega class "debug" al body */
-      body.debug .hotspot {
-        background: rgba(0, 255, 180, 0.18);
-        box-shadow: 0 0 0 2px rgba(0, 255, 180, 0.45);
-      }
-
-      .hotspot:focus-visible {
-        box-shadow: 0 0 0 3px rgba(120, 140, 255, 0.45);
-      }
-
-      /* posiciones usando variables */
-      .hotspot.tel {
-        left: var(--tel-x);
-        top: var(--tel-y);
-        width: var(--tel-w);
-        height: var(--tel-h);
-      }
-      .hotspot.mail {
-        left: var(--mail-x);
-        top: var(--mail-y);
-        width: var(--mail-w);
-        height: var(--mail-h);
-      }
-
-      @media (max-width: 420px) {
-        :root {
-          --radius: 16px;
-        }
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="wrap">
-      <div class="scene" id="scene">
-        <div class="card" id="card" tabindex="0" aria-label="Tarjeta 3D. Tap/click para girar. Arrastra para girar.">
-          <!-- Frente -->
-          <div class="face front">
-            <img class="img" src="1.png" alt="Frente de la tarjeta" />
-          </div>
-
-          <!-- Dorso -->
-          <div class="face back">
-            <img class="img" src="2.png" alt="Dorso de la tarjeta" />
-
-            <!-- ZONAS CLICABLES (están en la cara trasera) -->
-            <a class="hotspot tel" href="tel:+15617134678" aria-label="Telephone"></a>
-            <a class="hotspot mail" href="nparkingsolutions@gmail.com" aria-label="Send mail"></a>
-          </div>
-        </div>
+      <!-- FRENTE -->
+      <div class="face">
+        <img src="1.png" alt="Front">
       </div>
+
+      <!-- DORSO -->
+      <div class="face back">
+        <img src="2.png" alt="Back">
+
+        <!-- LINKS FUNCIONALES -->
+        <a class="hotspot tel"
+           href="tel:+15617134678"
+           aria-label="Call"></a>
+
+        <a class="hotspot mail"
+           href="mailto:nparkingsolutions@gmail.com"
+           aria-label="Email"></a>
+      </div>
+
     </div>
+  </div>
 
-    <script>
-      (function () {
-        const scene = document.getElementById("scene");
-        const card = document.getElementById("card");
+<script>
+(() => {
+  const scene = document.getElementById("scene");
+  const card = document.getElementById("card");
 
-        // Ajustes
-        const maxTilt = 12;
-        const maxScale = 1.03;
-        const hoverGlow = 1;
+  let startX=0,startY=0,moved=false,isDown=false;
 
-        // Para flip por drag
-        const dragFlipThreshold = 70; // px para decidir flip al soltar
-        let isPointerDown = false;
-        let startX = 0;
-        let startY = 0;
-        let dragDX = 0;
-        let draggingFlip = false;
-        let moved = false;
+  scene.addEventListener("pointerdown",e=>{
+    if(e.target.closest(".hotspot")) return;
+    isDown=true; moved=false;
+    startX=e.clientX; startY=e.clientY;
+  });
 
-        function clamp(v, min, max) {
-          return Math.min(max, Math.max(min, v));
-        }
+  scene.addEventListener("pointermove",e=>{
+    if(!isDown || e.target.closest(".hotspot")) return;
+    if(Math.abs(e.clientX-startX)>5 || Math.abs(e.clientY-startY)>5) moved=true;
+  });
 
-        function setGlow(px, py) {
-          card.style.setProperty("--gx", (px * 100).toFixed(1) + "%");
-          card.style.setProperty("--gy", (py * 100).toFixed(1) + "%");
-          card.querySelectorAll(".face").forEach((face) => {
-            face.style.setProperty("--gop", String(hoverGlow));
-          });
-        }
+  scene.addEventListener("pointerup",()=>{
+    isDown=false;
+  });
 
-        function setTilt(clientX, clientY) {
-          const r = scene.getBoundingClientRect();
-          const px = (clientX - r.left) / r.width;
-          const py = (clientY - r.top) / r.height;
+  card.addEventListener("click",e=>{
+    if(e.target.closest(".hotspot")) return;
+    if(moved) return;
+    card.classList.toggle("is-flipped");
+  });
 
-          const dx = (px - 0.5) * 2;
-          const dy = (py - 0.5) * 2;
-
-          const rotY = clamp(dx * maxTilt, -maxTilt, maxTilt);
-          const rotX = clamp(-dy * maxTilt, -maxTilt, maxTilt);
-
-          setGlow(px, py);
-
-          // Si estamos haciendo flip por drag, NO sobreescribimos el Y (se maneja aparte)
-          if (draggingFlip) {
-            const base = card.dataset.baseRotY || "0";
-            card.style.transform = `rotateY(${base}deg) rotateX(${rotX}deg) scale(${maxScale})`;
-            return;
-          }
-
-          const base = card.classList.contains("is-flipped") ? "180" : "0";
-          card.style.transform = `rotateY(${base}deg) rotateX(${rotX}deg) rotateY(${rotY}deg) scale(${maxScale})`;
-        }
-
-        function resetGlow() {
-          card.querySelectorAll(".face").forEach((face) => {
-            face.style.setProperty("--gop", "0");
-          });
-        }
-
-        function resetTilt() {
-          resetGlow();
-          const base = card.classList.contains("is-flipped") ? 180 : 0;
-          card.style.transform = `rotateY(${base}deg)`;
-        }
-
-        function flip(toState) {
-          if (typeof toState === "boolean") {
-            card.classList.toggle("is-flipped", toState);
-          } else {
-            card.classList.toggle("is-flipped");
-          }
-          resetTilt();
-        }
-
-        function beginDragFlip() {
-          draggingFlip = true;
-          card.style.transition = "transform 0ms";
-        }
-
-        function updateDragFlip(dx) {
-          const base = card.classList.contains("is-flipped") ? 180 : 0;
-          // dx positivo: gira hacia atrás; negativo: hacia adelante (ajusta si lo quieres al revés)
-          const rot = clamp(base + dx * 0.9, base - 120, base + 120);
-          card.dataset.baseRotY = String(rot);
-          card.style.transform = `rotateY(${rot}deg) scale(${maxScale})`;
-        }
-
-        function endDragFlip() {
-          draggingFlip = false;
-          card.style.transition = "transform 700ms cubic-bezier(.2,.8,.2,1), box-shadow 700ms cubic-bezier(.2,.8,.2,1)";
-          card.dataset.baseRotY = "";
-
-          // Decide si voltear según distancia
-          if (Math.abs(dragDX) > dragFlipThreshold) {
-            flip(!card.classList.contains("is-flipped"));
-          } else {
-            resetTilt();
-          }
-        }
-
-        // Pointer events
-        scene.addEventListener("pointerenter", (e) => {
-          scene.setPointerCapture?.(e.pointerId);
-        });
-
-        scene.addEventListener("pointerdown", (e) => {
-          isPointerDown = true;
-          moved = false;
-          draggingFlip = false;
-          dragDX = 0;
-          startX = e.clientX;
-          startY = e.clientY;
-
-          setTilt(e.clientX, e.clientY);
-        });
-
-        scene.addEventListener("pointermove", (e) => {
-          if (!isPointerDown && e.pointerType !== "mouse") return;
-
-          const dx = e.clientX - startX;
-          const dy = e.clientY - startY;
-
-          // marcar movimiento real
-          if (Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
-
-          // Si arrastra horizontal, activamos flip por drag
-          if (isPointerDown && !draggingFlip && Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) {
-            beginDragFlip();
-          }
-
-          if (draggingFlip) {
-            dragDX = dx;
-            updateDragFlip(dx);
-          } else {
-            setTilt(e.clientX, e.clientY);
-          }
-        });
-
-        scene.addEventListener("pointerup", () => {
-          isPointerDown = false;
-          if (draggingFlip) {
-            endDragFlip();
-          }
-        });
-
-        scene.addEventListener("pointerleave", () => {
-          isPointerDown = false;
-          if (draggingFlip) {
-            endDragFlip();
-          } else {
-            resetTilt();
-          }
-        });
-
-        // Tap/click para flip (solo si NO arrastró)
-        card.addEventListener("click", (e) => {
-          if (moved) return;
-          flip();
-        });
-
-        // Teclado
-        card.addEventListener("keydown", (e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            flip();
-          }
-          if (e.key === "Escape") {
-            e.preventDefault();
-            resetTilt();
-          }
-        });
-
-        // Evitar que un tap en hotspot haga flip
-        // (para que el link funcione sin que se voltee)
-        document.querySelectorAll(".hotspot").forEach((a) => {
-          a.addEventListener("click", (e) => {
-            e.stopPropagation();
-          });
-          a.addEventListener("pointerdown", (e) => {
-            e.stopPropagation();
-          });
-        });
-
-        // Inicial
-        resetTilt();
-      })();
-    </script>
-  </body>
+})();
+</script>
+</body>
 </html>
